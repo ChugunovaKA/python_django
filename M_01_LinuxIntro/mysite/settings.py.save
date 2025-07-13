@@ -26,10 +26,7 @@ SECRET_KEY = 'django-insecure-$ysm3xlkh*80@gio$x@(amgpiz5-4z))1$fw@nhe$esir*9z4l
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
-# Application definition
-
+pplication definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,9 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.admin',
+    'django.contrib.auth',
     'myapp',
-    'main.apps.MainConfig',
-    'shopapp',
 ]
 
 
