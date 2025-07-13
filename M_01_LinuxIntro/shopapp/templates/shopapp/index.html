@@ -1,0 +1,19 @@
+{% extends "shopapp/base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<h2>Товары нашего магазина</h2>
+
+<ul>
+    {% for product in products %}
+        <li>{{ product.name|upper }} — Цена: {{ product.price|floatformat:2 }} руб.</li>
+    {% empty %}
+        <li>Товаров пока нет.</li>
+    {% endfor %}
+</ul>
+
+<p>Сегодня: {{ today|date:"d.m.Y" }}</p>
+<p>Приветствие: {{ greeting|default:"Добро пожаловать!" }}</p>
+<p>Описание: {{ description|truncatewords:5 }}</p>
+{% endblock %}
