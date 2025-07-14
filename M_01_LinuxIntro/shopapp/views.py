@@ -1,7 +1,6 @@
 from django.shortcuts import render
-
-# Create your views here.
 from datetime import date
+from shopapp.models import Product, Order
 
 def index(request):
     products = [
@@ -16,3 +15,17 @@ def index(request):
         'description': 'Лучшие товары по лучшим ценам для вас и вашей семьи.',
     }
     return render(request, 'shopapp/index.html', context)
+
+def products_list(request):
+    products = Product.objects.all()
+    context = {
+        'products': products,
+    }
+    return render(request, 'shopapp/products_list.html', context)
+
+def orders_list(request):
+    orders = Order.objects.select_related('user').prefetch_related('products').all()
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'shopapp/orders_list.html', context)
