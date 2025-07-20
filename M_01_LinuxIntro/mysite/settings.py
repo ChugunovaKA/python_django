@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
+    'myapp.middleware.ThrottlingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -125,3 +126,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MAX_UPLOAD_SIZE = 1 * 1024 * 1024  # 1 Мб
