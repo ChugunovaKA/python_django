@@ -1,4 +1,4 @@
-rom django import forms
+from django import forms
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 
