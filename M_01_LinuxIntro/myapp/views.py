@@ -1,8 +1,9 @@
 from django import forms
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
+from django.conf import settings
 
-MAX_FILE_SIZE = 1 * 1024 * 1024  # 1 Мб
+MAX_FILE_SIZE = settings.MAX_UPLOAD_SIZE
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
