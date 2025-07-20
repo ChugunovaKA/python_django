@@ -20,4 +20,4 @@ def upload_file(request):
             return HttpResponse("Файл успешно загружен!")
     else:
         form = UploadFileForm()
-    return render(request, 'upload.html', {'form': form})
+    return render(request, 'myapp/upload.html', {'form': form})
