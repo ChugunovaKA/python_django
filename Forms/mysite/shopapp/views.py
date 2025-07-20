@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from django.shortcuts import render, redirect
 
 from .models import Product, Order
-from .forms import ProductForm
+from .forms import ProductForm, OrderForm  # добавлен импорт OrderForm
 
 
 def shop_index(request: HttpRequest):
@@ -52,3 +52,15 @@ def create_product(request):
         form = ProductForm()
 
     return render(request, 'shopapp/product_create.html', {'form': form})
+
+
+def create_order(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('orders_list')  # Перенаправляем на список заказов после создания
+    else:
+        form = OrderForm()
+
+    return render(request, 'shopapp/order_form.html', {'form': form})
