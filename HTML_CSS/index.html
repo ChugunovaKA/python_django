@@ -1,54 +1,295 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Моя страница</title>
-    <!-- Подключаем шрифт Roboto -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-      rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Практическая работа 7.15</title>
 
-    <style>
-        /* Применяем шрифт ко всем элементам */
-        * {
-            font-family: 'Roboto', sans-serif;
-        }
+<!-- Подключение шрифта Roboto -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+  rel="stylesheet"
+/>
 
-        /* Стили для меню в header */
-        header nav a {
-            color: black;
-            text-decoration: none;
-            margin-right: 20px; /* Отступ справа между ссылками */
-        }
+<style>
+  /* Общие стили */
+  * {
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+  }
+  body {
+    margin: 0;
+    line-height: 1.5;
+  }
 
-        header nav a:last-child {
-            margin-right: 0; /* Отступ у последней ссылки убираем */
-        }
+  /* ====== ХЕДЕР ====== */
+  header {
+    padding: 20px 40px;
+    background-color: #fff;
+  }
+  header nav {
+    display: flex;
+  }
+  header nav a {
+    color: black;
+    text-decoration: none;
+    margin-right: 30px;
+    font-weight: 500;
+    font-size: 16px;
+  }
+  header nav a:last-child {
+    margin-right: 0;
+  }
+  header nav a:hover {
+    text-decoration: underline;
+  }
 
-        header nav a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  /* ====== ПЕРВЫЙ БЛОК ====== */
+  .hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 60px 40px;
+    background: url('https://via.placeholder.com/600x400') no-repeat right center;
+    background-size: contain;
+    min-height: 400px; /* увеличенная высота */
+    background-color: #eaeaea;
+  }
+  .hero-text {
+    max-width: 50%;
+  }
+  .hero h1 {
+    font-size: 48px;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  .hero h2 {
+    font-size: 32px;
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-weight: 400;
+  }
+  .hero button {
+    padding: 14px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  /* ====== БЛОК С ПРИМЕРАМИ РАБОТ ====== */
+  .works {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px;
+  }
+  .work-item {
+    width: 32%;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  }
+  .work-item img {
+    width: 100%;
+    display: block;
+  }
+
+  /* ====== СИНИЙ БЛОК ====== */
+  .blue-block {
+    background-color: #007bff;
+    color: white;
+    padding: 40px;
+    text-align: center;
+  }
+  .blue-block h2, .blue-block p {
+    margin: 0 auto 20px;
+    width: 50%;
+  }
+  .blue-block p {
+    font-size: 14px;
+  }
+
+  /* ====== ФУТЕР ====== */
+  footer {
+    background-color: #f8f8f8;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .footer-menu, .footer-contacts, .footer-social {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  /* Footer меню — ссылки вертикально */
+  .footer-menu div {
+    display: flex;
+    flex-direction: column;
+  }
+  .footer-menu a {
+    text-decoration: none;
+    color: black;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .footer-menu a:hover {
+    text-decoration: underline;
+  }
+
+  /* Контакты */
+  .footer-contacts p, .footer-contacts button {
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  .footer-contacts button {
+    cursor: pointer;
+    padding: 10px 20px;
+  }
+
+  /* Соцсети */
+  .footer-social a {
+    display: inline-block;
+    margin-right: 15px;
+  }
+  .footer-social img {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ====== ВСПЛЫВАЮЩЕЕ ОКНО ====== */
+  .popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.5);
+    display: none; /* скрыто по умолчанию */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .popup {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 320px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+  }
+  .popup input[type="text"], .popup input[type="email"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .popup button {
+    cursor: pointer;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 4px;
+  }
+
+</style>
 </head>
 <body>
 
 <header>
-    <nav>
-        <a href="#">Услуги</a>
-        <a href="#">Портфолио</a>
-        <a href="#">Стоимость</a>
-    </nav>
+  <nav>
+    <a href="#">Услуги</a>
+    <a href="#">Портфолио</a>
+    <a href="#">Стоимость</a>
+  </nav>
 </header>
 
-<main>
-    <!-- Здесь будет основной контент -->
-</main>
+<section class="hero">
+  <div class="hero-text">
+    <h1>Заголовок H1 большого размера</h1>
+    <h2>Подзаголовок H2 среднего размера</h2>
+    <button class="open-popup">Заказать звонок</button>
+  </div>
+</section>
+
+<section class="works">
+  <div class="work-item">
+    <img src="https://via.placeholder.com/300x200?text=Работа+1" alt="Пример работы 1" />
+  </div>
+  <div class="work-item">
+    <img src="https://via.placeholder.com/300x200?text=Работа+2" alt="Пример работы 2" />
+  </div>
+  <div class="work-item">
+    <img src="https://via.placeholder.com/300x200?text=Работа+3" alt="Пример работы 3" />
+  </div>
+</section>
+
+<section class="blue-block">
+  <h2>Заголовок синего блока</h2>
+  <p>Мелкий текст под заголовком, поясняющий информацию.</p>
+</section>
 
 <footer>
-    <!-- Здесь будет футер -->
+  <div class="footer-menu">
+    <div>
+      <a href="#">Услуги</a>
+      <a href="#">Портфолио</a>
+      <a href="#">Стоимость</a>
+    </div>
+  </div>
+  <div class="footer-contacts">
+    <p>Email: example@mail.com</p>
+    <p>Телефон: +7 123 456 7890</p>
+    <button class="open-popup">Заказать звонок</button>
+  </div>
+  <div class="footer-social">
+    <a href="#" aria-label="Facebook"><img src="https://cdn-icons-png.flaticon.com/512/174/174848.png" alt="Facebook"></a>
+    <a href="#" aria-label="Instagram"><img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"></a>
+    <a href="#" aria-label="Twitter"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter"></a>
+  </div>
 </footer>
+
+<!-- Всплывающее окно -->
+<div class="popup-container">
+  <div class="popup">
+    <input type="text" placeholder="Введите ваше имя" />
+    <input type="email" placeholder="Введите Email" />
+    <button id="popup-send-btn">Отправить</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var container = document.querySelector('.popup-container');
+  var popupButtons = document.querySelectorAll('.open-popup');
+  var sendBtn = document.getElementById('popup-send-btn');
+
+  popupButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      container.style.display = 'flex';
+    });
+  });
+
+  // Закрыть при клике вне окна
+  container.addEventListener('click', function(event) {
+    if(event.target === container) {
+      container.style.display = 'none';
+    }
+  });
+
+  // Закрыть при клике на кнопку Отправить
+  sendBtn.addEventListener('click', function() {
+    container.style.display = 'none';
+  });
+});
+</script>
 
 </body>
 </html>
