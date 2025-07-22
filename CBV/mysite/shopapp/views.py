@@ -2,7 +2,7 @@ from timeit import default_timer
 
 from django.contrib.auth.models import Group
 from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect # Добавили get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, UpdateView
 from django.urls import reverse_lazy
 
@@ -57,3 +57,11 @@ def orders_list(request: HttpRequest):
         "orders": Order.objects.select_related("user").prefetch_related("products").all(),
     }
     return render(request, 'shopapp/orders-list.html', context=context)
+
+
+# НОВАЯ ФУНКЦИЯ ДЛЯ АРХИВАЦИИ
+def product_archive(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    product.archived = True
+    product.save()
+    return redirect('shopapp:products_list')
