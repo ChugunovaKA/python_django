@@ -30,10 +30,11 @@ def groups_list(request: HttpRequest):
 
 class ProductListView(ListView):
     model = Product
-    template_name = 'shopapp/products-list.html'
+    template_name = 'shopapp/products-list.html'  # используем уже существующий шаблон
     context_object_name = 'products'
 
     def get_queryset(self):
+        # Возвращаем только неархивированные продукты
         return Product.objects.filter(archived=False)
 
 
