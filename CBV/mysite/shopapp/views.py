@@ -3,7 +3,8 @@ from timeit import default_timer
 from django.contrib.auth.models import Group
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
+from django.urls import reverse_lazy
 
 from .models import Product, Order
 
@@ -42,6 +43,13 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'shopapp/product_detail.html'  # создадим этот шаблон
     context_object_name = 'product'
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    fields = ['name', 'description', 'price', 'discount']  # поля, которые можно редактировать
+    template_name = 'shopapp/product_form.html'  # шаблон для формы
+    success_url = reverse_lazy('shopapp:products_list')  # куда перенаправлять после успешного обновления
 
 
 def orders_list(request: HttpRequest):
