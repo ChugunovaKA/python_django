@@ -3,7 +3,7 @@ from timeit import default_timer
 from django.contrib.auth.models import Group
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from .models import Product, Order
 
@@ -36,6 +36,12 @@ class ProductListView(ListView):
     def get_queryset(self):
         # Возвращаем только неархивированные продукты
         return Product.objects.filter(archived=False)
+
+
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'shopapp/product_detail.html'  # создадим этот шаблон
+    context_object_name = 'product'
 
 
 def orders_list(request: HttpRequest):
