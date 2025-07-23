@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Мой сайт</title>
+</head>
+<body>
+    {% if user.is_authenticated %}
+        <p>Привет, {{ user.username }}!</p>
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Выйти</button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}">Войти</a>
+    {% endif %}
+
+    <hr>
+
+    <!-- Здесь можно вставлять содержимое конкретных страниц -->
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
