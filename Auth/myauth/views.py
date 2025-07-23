@@ -18,3 +18,15 @@ class GetCookieView(View):
     def get(self, request):
         value = request.COOKIES.get('mycookie', 'Значение по умолчанию')
         return HttpResponse(f'Значение cookie: {value}')
+
+
+class SetSessionView(View):
+    def get(self, request):
+        request.session['mykey'] = 'value_in_session'
+        return HttpResponse('Данные записаны в сессию')
+
+
+class GetSessionView(View):
+    def get(self, request):
+        value = request.session.get('mykey', 'Значение по умолчанию')
+        return HttpResponse(f'Значение в сессии: {value}')
