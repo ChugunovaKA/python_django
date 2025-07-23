@@ -1,11 +1,11 @@
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
-from . import views
+from django.contrib.auth.views import LoginView
+from .views import MyLogoutView
 
 urlpatterns = [
     path('login/', LoginView.as_view(
-        template_name='myauth/login.html',      # имя шаблона
-        redirect_authenticated_user=True        # если пользователь уже аутентифицирован — редирект
+        template_name='myauth/login.html',
+        redirect_authenticated_user=True
     ), name='login'),
-    # логаут добавим позже, вместе с остальными views
+    path('logout/', MyLogoutView.as_view(), name='logout'),
 ]
