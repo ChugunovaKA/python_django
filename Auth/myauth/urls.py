@@ -1,4 +1,5 @@
 from django.urls import path
+from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
 from .views import (
     MyLogoutView,
@@ -7,6 +8,8 @@ from .views import (
 )
 
 urlpatterns = [
+    path('', lambda request: HttpResponse('Главная страница'), name='home'),  # главная страница
+
     path('login/', LoginView.as_view(
         template_name='myauth/login.html',
         redirect_authenticated_user=True
