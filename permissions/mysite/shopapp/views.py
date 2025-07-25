@@ -1,24 +1,17 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.views.generic import CreateView, TemplateView, ListView
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.generic import UpdateView
 from django.urls import reverse_lazy
-
 from .models import Product
 
-class ShopIndexView(TemplateView):
-    template_name = "shopapp/index.html"
-
-class ProductsListView(ListView):
+class ProductUpdateView(UserPassesTestMixin, UpdateView):
     model = Product
-    template_name = "shopapp/products_list.html"
-    context_object_name = "products"
+    fields = ('name', 'price', 'description', 'discount')  # поля редактирования
+    template_name = 'shopapp/product_update.html'          # путь к шаблону
+    success_url = reverse_lazy('shopapp:products_list')    # куда переходит после сохранения
 
-class ProductCreateView(PermissionRequiredMixin, CreateView):
-    model = Product
-    fields = ("name", "price", "description", "discount")
-    template_name = "shopapp/product_create.html"
-    success_url = reverse_lazy("shopapp:products_list")
-    permission_required = "shopapp.add_product"
-
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        return super().form_valid(form)
+    def test_func(self):
+        product = self.get_object()
+        user = self.request.user
+        # Суперпользователь всегда может редактировать
+        # Остальные — только если есть разрешение и автор продукта
+        return user.is_superuser or (user.has_perm('shopapp.change_product') and product.created_by == user)
