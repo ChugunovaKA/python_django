@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views  # импорт станда
 
 from .views import (
     AboutMeView,
+    UserRegisterView,  # импортируем регистрацию
 )
 
 app_name = "myauth"
@@ -19,5 +20,11 @@ urlpatterns = [
         "logout/",
         auth_views.LogoutView.as_view(next_page="/accounts/login/"),  # при выходе редиректим на логин
         name="logout",
+    ),
+
+    path(
+        "register/",
+        UserRegisterView.as_view(),
+        name="register",
     ),
 ]
