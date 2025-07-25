@@ -1,5 +1,8 @@
-from django.views.generic import TemplateView
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
 
-
-class AboutMeView(TemplateView):
-    template_name = "myauth/about-me.html"
+class UserRegisterView(CreateView):
+    form_class = UserCreationForm
+    template_name = 'myauth/register.html'
+    success_url = reverse_lazy('myauth:login')
