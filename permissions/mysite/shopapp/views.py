@@ -1,9 +1,15 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.views.generic import CreateView
+from django.views.generic import CreateView, TemplateView
 from django.urls import reverse_lazy
 
 from .models import Product
 
+# Главная страница магазина (обязательный класс, чтобы устранить ошибку импорта ShopIndexView)
+class ShopIndexView(TemplateView):
+    template_name = "shopapp/index.html"
+
+
+# Создание продукта с проверкой разрешения
 class ProductCreateView(PermissionRequiredMixin, CreateView):
     model = Product
     fields = ("name", "price", "description", "discount")
