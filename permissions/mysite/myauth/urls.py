@@ -1,15 +1,11 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views  # импорт стандартных views
-
-from .views import (
-    # AboutMeView,  # временно убрали, чтобы убрать ошибку импорта
-    UserRegisterView,  # импортируем регистрацию
-)
+from django.contrib.auth import views as auth_views
+from .views import AboutMeView, UserRegisterView
 
 app_name = "myauth"
 
 urlpatterns = [
-    # path("about-me/", AboutMeView.as_view(), name="about-me"),  # временно отключено
+    path("about-me/", AboutMeView.as_view(), name="about-me"),
 
     path(
         "login/",
@@ -18,7 +14,7 @@ urlpatterns = [
     ),
     path(
         "logout/",
-        auth_views.LogoutView.as_view(next_page="/accounts/login/"),  # при выходе редиректим на логин
+        auth_views.LogoutView.as_view(next_page="/accounts/login/"),
         name="logout",
     ),
 
