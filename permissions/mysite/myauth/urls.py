@@ -2,14 +2,14 @@ from django.urls import path
 from django.contrib.auth import views as auth_views  # импорт стандартных views
 
 from .views import (
-    AboutMeView,
+    # AboutMeView,  # временно убрали, чтобы убрать ошибку импорта
     UserRegisterView,  # импортируем регистрацию
 )
 
 app_name = "myauth"
 
 urlpatterns = [
-    path("about-me/", AboutMeView.as_view(), name="about-me"),
+    # path("about-me/", AboutMeView.as_view(), name="about-me"),  # временно отключено
 
     path(
         "login/",
