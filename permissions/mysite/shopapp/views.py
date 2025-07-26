@@ -5,13 +5,13 @@ from .models import Product
 
 class ProductsListView(ListView):
     model = Product
-    template_name = 'shopapp/products-list.html'
+    template_name = 'shopapp/products-list.html'   # имя файла с дефисом
     context_object_name = 'products'
 
 class ProductCreateView(PermissionRequiredMixin, CreateView):
     model = Product
     fields = ('name', 'price', 'description', 'discount')
-    template_name = 'shopapp/product_create.html'
+    template_name = 'shopapp/product_create.html'   # совпадает с именем файла
     permission_required = 'shopapp.add_product'
     success_url = reverse_lazy('shopapp:products_list')
 
@@ -22,7 +22,7 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):
 class ProductUpdateView(UserPassesTestMixin, UpdateView):
     model = Product
     fields = ('name', 'price', 'description', 'discount')
-    template_name = 'shopapp/product_update.html'
+    template_name = 'shopapp/product_update_form.html'  # исправлено имя шаблона
     success_url = reverse_lazy('shopapp:products_list')
 
     def test_func(self):
