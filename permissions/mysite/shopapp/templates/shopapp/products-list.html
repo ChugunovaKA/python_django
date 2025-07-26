@@ -2,14 +2,21 @@
 
 {% block content %}
   <h1>Список продуктов</h1>
+
+  {# Показываем ссылку «Создать продукт» только если у пользователя есть право add_product #}
   {% if perms.shopapp.add_product %}
     <a href="{% url 'shopapp:product_create' %}">Создать продукт</a>
   {% endif %}
+
   <ul>
     {% for product in products %}
       <li>
-        {{ product.name }} -
-        <a href="{% url 'shopapp:product_update' product.pk %}">Редактировать</a>
+        {{ product.name }}
+        {# Показываем ссылку «Редактировать» только если пользователь – суперпользователь
+           или автор продукта с правом на изменение #}
+        {% if user.is_superuser or (user == product.created_by and perms.shopapp.change_product) %}
+          - <a href="{% url 'shopapp:product_update' product.pk %}">Редактировать</a>
+        {% endif %}
       </li>
     {% empty %}
       <li>Продуктов пока нет.</li>
