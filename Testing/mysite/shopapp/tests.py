@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User, Permission
 from django.urls import reverse
-from shopapp.models import Order, Product  # замените на ваши модели, если отличаются
+from shopapp.models import Order, Product
 
 
 class OrderDetailViewTestCase(TestCase):
@@ -10,8 +10,8 @@ class OrderDetailViewTestCase(TestCase):
         super().setUpClass()
         # Создаем пользователя
         cls.user = User.objects.create_user(username='testuser', password='pass1234')
-        # Добавляем нужные права на просмотр заказа
-        permission = Permission.objects.get(codename='view_order')  # 'shopapp.view_order'
+        # Добавляем право на просмотр заказа
+        permission = Permission.objects.get(codename='view_order')
         cls.user.user_permissions.add(permission)
 
     @classmethod
@@ -20,27 +20,42 @@ class OrderDetailViewTestCase(TestCase):
         super().tearDownClass()
 
     def setUp(self):
-        # Вход пользователя
+        # Логинимся клиентом
         self.client = Client()
-        self.client.login(username='testuser', password='pass1234')
-        # Создаем тестовый заказ (примитивный пример, адаптируйте под вашу модель)
+        logged_in = self.client.login(username='testuser', password='pass1234')
+        self.assertTrue(logged_in, "Не удалось выполнить вход пользователя в тесте")
+
+        # Создаем продукт
+        self.product = Product.objects.create(
+            name='Test Product',
+            description='Test description',
+            price=10.00,
+            discount=0,
+            archived=False
+        )
+
+        # Создаем заказ
         self.order = Order.objects.create(
-            address='123 Test St',
+            delivery_address='123 Test St',
             promocode='PROMO2025',
             user=self.user
         )
+        # Добавляем продукт к заказу
+        self.order.products.add(self.product)
 
     def tearDown(self):
         self.order.delete()
+        self.product.delete()
 
     def test_order_details(self):
-        url = reverse('order_detail', args=[self.order.pk])  # проверьте имя url и аргументы
+        url = reverse('order_detail', args=[self.order.pk])  # Замените на свой URL name
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        # Проверяем, что в теле ответа есть адрес и промокод
-        self.assertIn(self.order.address, response.content.decode())
-        self.assertIn(self.order.promocode, response.content.decode())
+        # Проверяем, что в ответе есть адрес и промокод
+        response_content = response.content.decode()
+        self.assertIn(self.order.delivery_address, response_content)
+        self.assertIn(self.order.promocode, response_content)
 
         # Проверяем, что в контексте тот же заказ
         self.assertEqual(response.context['order'].pk, self.order.pk)
