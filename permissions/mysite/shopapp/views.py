@@ -5,7 +5,7 @@ from .models import Product
 
 class ProductsListView(ListView):
     model = Product
-    template_name = 'shopapp/products_list.html'
+    template_name = 'shopapp/products-list.html'
     context_object_name = 'products'
 
 class ProductCreateView(PermissionRequiredMixin, CreateView):
