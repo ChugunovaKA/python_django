@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings  # Для подключения модели пользователя
 from django.db import models
 
 
@@ -13,6 +13,13 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     archived = models.BooleanField(default=False)
 
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="products",
+        verbose_name="Автор продукта"
+    )
+
     def __str__(self):
         return f"Product(pk={self.pk}, name={self.name!r})"
 
@@ -21,5 +28,5 @@ class Order(models.Model):
     delivery_address = models.TextField(null=True, blank=True)
     promocode = models.CharField(max_length=20, null=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     products = models.ManyToManyField(Product, related_name="orders")
