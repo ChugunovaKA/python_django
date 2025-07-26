@@ -2,7 +2,9 @@
 
 {% block content %}
   <h1>Список продуктов</h1>
-  <a href="{% url 'shopapp:product_create' %}">Создать продукт</a>
+  {% if perms.shopapp.add_product %}
+    <a href="{% url 'shopapp:product_create' %}">Создать продукт</a>
+  {% endif %}
   <ul>
     {% for product in products %}
       <li>
