@@ -62,73 +62,58 @@ class OrderDetailViewTestCase(TestCase):
 
 
 class OrdersExportViewTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # Обычный пользователь без прав staff
-        cls.user = User.objects.create_user(username='regularuser', password='userpass')
-
-        # Staff пользователь с правами
-        cls.staff_user = User.objects.create_user(username='staffuser', password='staffpass', is_staff=True)
+    fixtures = ['test_data.json']  # укажите имя вашего файла фикстур
 
     @classmethod
-    def tearDownClass(cls):
-        cls.user.delete()
-        cls.staff_user.delete()
-        super().tearDownClass()
+    def setUpTestData(cls):
+        # Получаем пользователей, которые загружаются из фикстур
+        cls.regular_user = User.objects.get(username='regularuser')
+        cls.staff_user = User.objects.get(username='staffuser')
+
+        # Устанавливаем их пароли заново, чтобы логин сработал
+        cls.regular_user.set_password('userpass')
+        cls.regular_user.save()
+        cls.staff_user.set_password('staffpass')
+        cls.staff_user.save()
 
     def setUp(self):
         self.client = Client()
 
-        # Создаем тестовый продукт
-        self.product = Product.objects.create(
-            name='Test Product',
-            description='Test Description',
-            price=9.99,
-            discount=0,
-            archived=False,
-        )
-
-        # Создаем заказ, связанный со staff пользователем
-        self.order = Order.objects.create(
-            delivery_address='Test Address',
-            promocode='PROMO',
-            user=self.staff_user,
-        )
-        self.order.products.add(self.product)
-
-    def tearDown(self):
-        self.order.delete()
-        self.product.delete()
-
     def test_access_requires_staff(self):
-        # Без авторизации - доступ запрещён (обычно 302 редирект на логин)
+        # Без авторизации - доступ запрещён
         response = self.client.get(reverse('shopapp:orders_export'))
         self.assertNotEqual(response.status_code, 200)
 
-        # Залогинен обычный пользователь - доступ запрещён
+        # Авторизация обычным пользователем - доступ запрещён
         self.client.login(username='regularuser', password='userpass')
         response = self.client.get(reverse('shopapp:orders_export'))
         self.assertNotEqual(response.status_code, 200)
         self.client.logout()
 
-        # Залогинен staff-пользователь - доступ разрешён
+        # Авторизация staff пользователем - доступ разрешён
         self.client.login(username='staffuser', password='staffpass')
         response = self.client.get(reverse('shopapp:orders_export'))
         self.assertEqual(response.status_code, 200)
 
-        # Проверяем JSON-структуру и данные
-        data = response.json()
-        self.assertIn("orders", data)
-        self.assertTrue(isinstance(data["orders"], list))
-        self.assertGreaterEqual(len(data["orders"]), 1)
+        # Получаем JSON из ответа
+        response_data = response.json()
 
-        # Проверяем поля первого заказа
-        order_data = data["orders"][0]
-        self.assertEqual(order_data["id"], self.order.id)
-        self.assertEqual(order_data["delivery_address"], self.order.delivery_address)
-        self.assertEqual(order_data["promocode"], self.order.promocode)
-        self.assertEqual(order_data["user_id"], self.staff_user.id)
-        self.assertIn(self.product.id, order_data["product_ids"])
+        # Формируем ожидаемые данные из базы
+        orders = Order.objects.select_related('user').prefetch_related('products').all()
+
+        expected_orders_data = []
+        for order in orders:
+            expected_orders_data.append({
+                "id": order.id,
+                "delivery_address": order.delivery_address,
+                "promocode": order.promocode,
+                "user_id": order.user.id,
+                "product_ids": list(order.products.values_list('id', flat=True))
+            })
+
+        expected_data = {"orders": expected_orders_data}
+
+        # Сравниваем всю структуру целиком
+        self.assertEqual(response_data, expected_data)
 
         self.client.logout()
