@@ -1,9 +1,12 @@
-<h1>Список продуктов</h1>
 <ul>
     {% for product in products %}
-        <li>{{ product.name }} — {{ product.price }}</li>
+        <li>
+            <a href="{% url 'shopapp:product_details' product.pk %}">{{ product.name }}</a> — {{ product.price }}
+            {% if perms.shopapp.change_product %}
+                | <a href="{% url 'shopapp:product_update' product.pk %}">Редактировать</a>
+            {% endif %}
+        </li>
     {% empty %}
         <li>Нет продуктов для отображения.</li>
     {% endfor %}
 </ul>
-
