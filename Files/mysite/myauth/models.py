@@ -3,7 +3,7 @@ from django.db import models
 import os
 
 def user_avatar_path(instance, filename):
-    # Функция, возвращающая путь загрузки аватара с использованием pk пользователя
+    # Функция для формирования пути загрузки аватара с использованием pk пользователя
     ext = filename.split('.')[-1]  # расширение файла
     filename = f'avatar.{ext}'  # фиксированное имя файла avatar с оригинальным расширением
     return os.path.join('avatars', str(instance.user.pk), filename)  # путь media/avatars/<user_pk>/avatar.ext
