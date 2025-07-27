@@ -1,0 +1,15 @@
+{% extends 'myauth/base.html' %}
+
+{% block title %}Редактирование профиля пользователя {{ profile_user.username }}{% endblock %}
+
+{% block body %}
+  <h1>Редактировать профиль: {{ profile_user.username }}</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Сохранить</button>
+    <a href="{% url 'myauth:profile-detail' profile_user.username %}">Отмена</a>
+  </form>
+{% endblock %}
