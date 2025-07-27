@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LogoutView
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseForbidden
 from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy
 from django.views import View
@@ -100,3 +100,21 @@ def profile_detail(request, username):
         "profile": profile,
         "can_edit": can_edit,
     })
+
+
+@login_required
+def profile_edit(request, username):
+    user = get_object_or_404(User, username=username)
+    if request.user != user and not request.user.is_staff:
+        return HttpResponseForbidden("Нет доступа на редактирование этого профиля")
+
+    profile = user.profile
+    if request.method == "POST":
+        form = ProfileAvatarForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect("myauth:profile-detail", username=user.username)
+    else:
+        form = ProfileAvatarForm(instance=profile)
+
+    return render(request, "myauth/profile_edit.html", {"form": form, "profile_user": user})
