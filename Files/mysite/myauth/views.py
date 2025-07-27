@@ -5,13 +5,29 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import CreateView
+from django.shortcuts import render, redirect
 
 from .models import Profile
+from .forms import ProfileAvatarForm
 
 
-class AboutMeView(TemplateView):
-    template_name = "myauth/about-me.html"
+@login_required
+def about_me(request):
+    profile = request.user.profile  # Получаем профиль текущего пользователя
+
+    if request.method == 'POST':
+        form = ProfileAvatarForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('myauth:about-me')
+    else:
+        form = ProfileAvatarForm(instance=profile)
+
+    return render(request, 'myauth/about-me.html', {
+        'form': form,
+        'profile': profile,
+    })
 
 
 class RegisterView(CreateView):
