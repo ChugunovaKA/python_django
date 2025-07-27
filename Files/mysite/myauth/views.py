@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect
 
 from .models import Profile
 from .forms import ProfileAvatarForm
+from django.contrib.auth.models import User  # импорт для списков пользователей
 
 
 @login_required
@@ -80,3 +81,9 @@ def get_session_view(request: HttpRequest) -> HttpResponse:
 class FooBarView(View):
     def get(self, request: HttpRequest) -> JsonResponse:
         return JsonResponse({"foo": "bar", "spam": "eggs"})
+
+
+@login_required
+def users_list(request):
+    users = User.objects.all()
+    return render(request, 'myauth/users_list.html', {'users': users})
