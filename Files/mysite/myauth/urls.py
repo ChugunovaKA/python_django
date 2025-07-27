@@ -7,9 +7,10 @@ from .views import (
     set_session_view,
     get_session_view,
     MyLogoutView,
-    about_me,           # Импорт функции вместо класса AboutMeView
+    about_me,
     RegisterView,
     FooBarView,
+    users_list,  # импорт для списка пользователей
 )
 
 app_name = "myauth"
@@ -24,7 +25,7 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", MyLogoutView.as_view(), name="logout"),
-    path("about-me/", about_me, name="about-me"),    # Здесь используем функцию about_me
+    path("about-me/", about_me, name="about-me"),
     path("register/", RegisterView.as_view(), name="register"),
 
     path("cookie/get/", get_cookie_view, name="cookie-get"),
@@ -34,4 +35,6 @@ urlpatterns = [
     path("session/get/", get_session_view, name="session-get"),
 
     path("foo-bar/", FooBarView.as_view(), name="foo-bar"),
+
+    path("users/", users_list, name="users-list"),  # маршрут для списка пользователей
 ]
