@@ -12,6 +12,7 @@ from .views import (
     FooBarView,
     users_list,
     profile_detail,  # добавлено
+    profile_edit,    # добавлено для редактирования профиля
 )
 
 app_name = "myauth"
@@ -39,5 +40,6 @@ urlpatterns = [
 
     path("users/", users_list, name="users-list"),
 
-    path("profile/<str:username>/", profile_detail, name="profile-detail"),  # <-- добавили маршрут
+    path("profile/<str:username>/", profile_detail, name="profile-detail"),  # просмотр профиля
+    path("profile/<str:username>/edit/", profile_edit, name="profile-edit"), # редактирование профиля
 ]
