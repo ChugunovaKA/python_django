@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Profile
 from .forms import ProfileAvatarForm
@@ -87,3 +87,16 @@ class FooBarView(View):
 def users_list(request):
     users = User.objects.all()
     return render(request, 'myauth/users_list.html', {'users': users})
+
+
+@login_required
+def profile_detail(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = user.profile
+    can_edit = request.user == user or request.user.is_staff  # можно ли редактировать профиль
+
+    return render(request, "myauth/profile_detail.html", {
+        "profile_user": user,
+        "profile": profile,
+        "can_edit": can_edit,
+    })
