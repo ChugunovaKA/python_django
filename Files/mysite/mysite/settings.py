@@ -59,7 +59,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # здесь укажите пути к своим шаблонам, если нужно
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,6 +124,7 @@ STATIC_URL = 'static/'
 
 
 # Media files (uploads)
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(str(BASE_DIR), 'media')
 
