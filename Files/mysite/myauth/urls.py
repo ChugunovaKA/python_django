@@ -10,7 +10,8 @@ from .views import (
     about_me,
     RegisterView,
     FooBarView,
-    users_list,  # импорт для списка пользователей
+    users_list,
+    profile_detail,  # добавлено
 )
 
 app_name = "myauth"
@@ -36,5 +37,7 @@ urlpatterns = [
 
     path("foo-bar/", FooBarView.as_view(), name="foo-bar"),
 
-    path("users/", users_list, name="users-list"),  # маршрут для списка пользователей
+    path("users/", users_list, name="users-list"),
+
+    path("profile/<str:username>/", profile_detail, name="profile-detail"),  # <-- добавили маршрут
 ]
