@@ -8,12 +8,12 @@
     {% for user in users %}
       <li>
         {% if user.profile.avatar %}
-          <img src="{{ user.profile.avatar.url }}" alt="Аватар" style="width:40px;height:40px;object-fit:cover;vertical-align:middle;">
+          <img src="{{ user.profile.avatar.url }}" alt="Аватар {{ user.username }}" style="width:40px; height:40px; object-fit: cover; vertical-align: middle;">
         {% endif %}
-        <a href="{% url 'myauth:profile-detail' user.username %}">
-          {{ user.username }}
-        </a>
+        <a href="{% url 'myauth:profile-detail' user.username %}">{{ user.username }}</a>
       </li>
+    {% empty %}
+      <li>Пользователей нет</li>
     {% endfor %}
   </ul>
 {% endblock %}
