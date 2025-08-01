@@ -1,5 +1,8 @@
+{% load i18n %}
+
 <!DOCTYPE html>
-<html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}">
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="UTF-8">
   <title>
@@ -11,7 +14,6 @@
 <body>
 
   <!-- Форма переключения языка -->
-  {% load i18n %}
   <form action="{% url 'set_language' %}" method="post" style="margin-bottom: 20px;">
     {% csrf_token %}
     <label for="language-select">{% trans "Select language:" %}</label>
