@@ -1,27 +1,42 @@
 {% extends 'shopapp/base.html' %}
 
+{% load i18n %}
+
 {% block title %}
-  Order #{{ object.pk }} details
+  {% blocktrans with order_id=object.pk %}
+    Order #{{ order_id }} details
+  {% endblocktrans %}
 {% endblock %}
 
 {% block body %}
-  <h1>Order #{{ object.pk }}</h1>
+  <h1>
+    {% blocktrans with order_id=object.pk %}
+      Order #{{ order_id }}
+    {% endblocktrans %}
+  </h1>
   <div>
-    <p>Order by {% firstof object.user.first_name object.user.username %}</p>
-    <p>Promocode: <code>{{ object.promocode }}</code></p>
-    <p>Delivery address: {{ object.delivery_address }}</p>
+    <p>
+      {% blocktrans with user_name=object.user.first_name|default:object.user.username %}
+        Order by {{ user_name }}
+      {% endblocktrans %}
+    </p>
+    <p>
+      {% trans "Promocode" %}: <code>{{ object.promocode }}</code>
+    </p>
+    <p>
+      {% trans "Delivery address" %}: {{ object.delivery_address }}
+    </p>
     <div>
-      Product in order:
+      {% trans "Product in order" %}:
       <ul>
         {% for product in object.products.all %}
-          <li>{{ product.name }} for ${{ product.price }}</li>
+          <li>{{ product.name }} {% blocktrans with price=product.price %}for ${{ price }}{% endblocktrans %}</li>
         {% endfor %}
-
       </ul>
     </div>
   </div>
 
   <div>
-    <a href="{% url 'shopapp:orders_list' %}">Back to orders</a>
+    <a href="{% url 'shopapp:orders_list' %}">{% trans "Back to orders" %}</a>
   </div>
 {% endblock %}
