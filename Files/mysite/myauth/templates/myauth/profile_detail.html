@@ -1,0 +1,27 @@
+{% extends 'myauth/base.html' %}
+
+{% block title %}Профиль {{ profile_user.username }}{% endblock %}
+
+{% block body %}
+  <h1>Профиль пользователя: {{ profile_user.username }}</h1>
+
+  {% if profile.avatar %}
+    <img src="{{ profile.avatar.url }}" alt="Аватар пользователя" style="width: 150px; height: 150px; object-fit: cover;">
+  {% else %}
+    <p>Аватар не установлен</p>
+  {% endif %}
+
+  <p><strong>Имя пользователя:</strong> {{ profile_user.username }}</p>
+  <p><strong>Email:</strong> {{ profile_user.email }}</p>
+  <p><strong>Bio:</strong> {{ profile.bio }}</p>
+
+  {% if can_edit %}
+    <p>
+      <a href="{% url 'myauth:profile-edit' profile_user.username %}">Редактировать профиль</a>
+    </p>
+  {% endif %}
+
+  <p>
+    <a href="{% url 'myauth:users-list' %}">← Назад к списку пользователей</a>
+  </p>
+{% endblock %}

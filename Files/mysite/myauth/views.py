@@ -1,18 +1,33 @@
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LogoutView
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseForbidden
 from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import CreateView
+from django.views.generic.edit import UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Profile
+from .forms import ProfileAvatarForm
+from django.contrib.auth.models import User  # импорт для списков пользователей
 
 
-class AboutMeView(TemplateView):
-    template_name = "myauth/about-me.html"
+# --- Новый класс-представление вместо функции about_me ---
 
+class AboutMeView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    form_class = ProfileAvatarForm  # или fields = ('avatar',) при простой форме
+    template_name = 'myauth/about-me.html'
+    success_url = reverse_lazy('myauth:about-me')
+
+    def get_object(self, queryset=None):
+        return self.request.user.profile
+
+
+# ---- Остальной ваш исходный код без изменений ----
 
 class RegisterView(CreateView):
     form_class = UserCreationForm
@@ -64,3 +79,40 @@ def get_session_view(request: HttpRequest) -> HttpResponse:
 class FooBarView(View):
     def get(self, request: HttpRequest) -> JsonResponse:
         return JsonResponse({"foo": "bar", "spam": "eggs"})
+
+
+@login_required
+def users_list(request):
+    users = User.objects.all()
+    return render(request, 'myauth/users_list.html', {'users': users})
+
+
+@login_required
+def profile_detail(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = user.profile
+    can_edit = request.user == user or request.user.is_staff  # можно ли редактировать профиль
+
+    return render(request, "myauth/profile_detail.html", {
+        "profile_user": user,
+        "profile": profile,
+        "can_edit": can_edit,
+    })
+
+
+@login_required
+def profile_edit(request, username):
+    user = get_object_or_404(User, username=username)
+    if request.user != user and not request.user.is_staff:
+        return HttpResponseForbidden("Нет доступа на редактирование этого профиля")
+
+    profile = user.profile
+    if request.method == "POST":
+        form = ProfileAvatarForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect("myauth:profile-detail", username=user.username)
+    else:
+        form = ProfileAvatarForm(instance=profile)
+
+    return render(request, "myauth/profile_edit.html", {"form": form, "profile_user": user})
