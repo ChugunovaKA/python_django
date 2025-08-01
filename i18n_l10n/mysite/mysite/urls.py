@@ -12,7 +12,9 @@ from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
-    # Пути, не зависящие от языка, если нужно, можно здесь оставить.
+    # Путь для смены языка, не зависящий от локали
+    path('i18n/', include('django.conf.urls.i18n')),
+    # Можно добавить здесь другие пути, не зависящие от языка
 ]
 
 urlpatterns += i18n_patterns(
@@ -28,6 +30,3 @@ if settings.DEBUG:
     urlpatterns.extend(
         static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     )
-
-Если в shopapp/urls.py и myauth/urls.py ещё нет, добавьте в каждом файл строку с указанием app_name, например в shopapp/urls.py:
-
