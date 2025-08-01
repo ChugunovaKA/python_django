@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView
+from django.views.generic.edit import UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Profile
@@ -13,23 +15,19 @@ from .forms import ProfileAvatarForm
 from django.contrib.auth.models import User  # импорт для списков пользователей
 
 
-@login_required
-def about_me(request):
-    profile = request.user.profile  # Получаем профиль текущего пользователя
+# --- Новый класс-представление вместо функции about_me ---
 
-    if request.method == 'POST':
-        form = ProfileAvatarForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('myauth:about-me')
-    else:
-        form = ProfileAvatarForm(instance=profile)
+class AboutMeView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    form_class = ProfileAvatarForm  # или fields = ('avatar',) при простой форме
+    template_name = 'myauth/about-me.html'
+    success_url = reverse_lazy('myauth:about-me')
 
-    return render(request, 'myauth/about-me.html', {
-        'form': form,
-        'profile': profile,
-    })
+    def get_object(self, queryset=None):
+        return self.request.user.profile
 
+
+# ---- Остальной ваш исходный код без изменений ----
 
 class RegisterView(CreateView):
     form_class = UserCreationForm
