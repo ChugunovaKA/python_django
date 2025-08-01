@@ -6,7 +6,7 @@ from shopapp.models import Product
 
 class ProductForm(forms.ModelForm):
     images = forms.ImageField(
-        widget=forms.ClearableFileInput(attrs={"multiple": True}),
+        widget=forms.ClearableFileInput(),
         required=False  # чтобы не было ошибки, если не загрузить файлы
     )
 
@@ -24,6 +24,6 @@ class ProductForm(forms.ModelForm):
             # Пример сохранения связанных изображений
             # Предположим, есть модель ProductImage с ForeignKey к Product
             # ProductImage.objects.create(product=instance, image=image)
-            pass
+            pass  # Здесь добавьте реальную логику сохранения изображений
 
         return instance
