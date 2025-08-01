@@ -19,8 +19,8 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
-    path('', include('shopapp.urls', namespace='shopapp')),  # <-- добавлен маршрут корня сайта
-    path('shop/', include('shopapp.urls', namespace='shopapp')),
+    path('', include('shopapp.urls', namespace='shopapp')),  # оставляем только один маршрут
+    # path('shop/', include('shopapp.urls', namespace='shopapp')),  # закомментировать или удалить
     path('myauth/', include('myauth.urls', namespace='myauth')),
 )
 
