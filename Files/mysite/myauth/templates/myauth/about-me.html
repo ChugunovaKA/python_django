@@ -12,11 +12,11 @@
     <p>First name: {{ user.first_name }}</p>
     <p>Last name: {{ user.last_name }}</p>
     <p>Email: {{ user.email }}</p>
-    <p>Bio: {{ profile.bio }}</p>
+    <p>Bio: {{ object.bio }}</p>
 
     <h3>Avatar</h3>
-    {% if profile.avatar %}
-      <img src="{{ profile.avatar.url }}" alt="User Avatar" style="max-width: 200px; max-height: 200px;">
+    {% if object.avatar %}
+      <img src="{{ object.avatar.url }}" alt="User Avatar" style="max-width: 200px; max-height: 200px;">
     {% else %}
       <p>Аватар отсутствует</p>
     {% endif %}
