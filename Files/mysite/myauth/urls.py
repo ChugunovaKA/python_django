@@ -7,7 +7,7 @@ from .views import (
     set_session_view,
     get_session_view,
     MyLogoutView,
-    about_me,
+    AboutMeView,  # заменили about_me на класс-представление AboutMeView
     RegisterView,
     FooBarView,
     users_list,
@@ -27,7 +27,7 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", MyLogoutView.as_view(), name="logout"),
-    path("about-me/", about_me, name="about-me"),
+    path("about-me/", AboutMeView.as_view(), name="about-me"),  # исправлено
     path("register/", RegisterView.as_view(), name="register"),
 
     path("cookie/get/", get_cookie_view, name="cookie-get"),
