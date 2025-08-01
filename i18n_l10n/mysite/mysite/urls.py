@@ -14,11 +14,12 @@ from django.conf.urls.i18n import i18n_patterns
 urlpatterns = [
     # Путь для смены языка, не зависящий от локали
     path('i18n/', include('django.conf.urls.i18n')),
-    # Можно добавить здесь другие пути, не зависящие от языка
+    # Здесь можно добавить другие пути, не зависящие от языка
 ]
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
+    path('', include('shopapp.urls', namespace='shopapp')),  # <-- добавлен маршрут корня сайта
     path('shop/', include('shopapp.urls', namespace='shopapp')),
     path('myauth/', include('myauth.urls', namespace='myauth')),
 )
