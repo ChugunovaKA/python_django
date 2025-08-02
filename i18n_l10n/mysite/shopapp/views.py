@@ -10,6 +10,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from .forms import ProductForm
 from .models import Product, Order, ProductImage
 
+from rest_framework import viewsets
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+
+from .serializers import ProductSerializer, OrderSerializer
+
 
 class ShopIndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -27,14 +33,12 @@ class ShopIndexView(View):
 
 class ProductDetailsView(DetailView):
     template_name = "shopapp/products-details.html"
-    # model = Product
     queryset = Product.objects.prefetch_related("images")
     context_object_name = "product"
 
 
 class ProductsListView(ListView):
     template_name = "shopapp/products-list.html"
-    # model = Product
     context_object_name = "products"
     queryset = Product.objects.filter(archived=False)
 
@@ -47,7 +51,6 @@ class ProductCreateView(CreateView):
 
 class ProductUpdateView(UpdateView):
     model = Product
-    # fields = "name", "price", "description", "discount", "preview"
     template_name_suffix = "_update_form"
     form_class = ProductForm
 
@@ -64,7 +67,6 @@ class ProductUpdateView(UpdateView):
                 product=self.object,
                 image=image,
             )
-
         return response
 
 
@@ -109,3 +111,25 @@ class ProductsDataExportView(View):
             for product in products
         ]
         return JsonResponse({"products": products_data})
+
+
+# --- Обновлённые ViewSet для Django REST framework ---
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    # Фильтры для Product
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']  # поля для поиска
+    ordering_fields = ['name', 'price', 'discount']  # поля для сортировки
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    # Фильтры для Order
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['user', 'status', 'created_at']  # поля для фильтрации
+    ordering_fields = ['user', 'status', 'created_at']  # поля для сортировки
