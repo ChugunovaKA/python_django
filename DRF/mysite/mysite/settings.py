@@ -129,7 +129,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = reverse_lazy("myauth:about-me")
 LOGIN_URL = reverse_lazy("myauth:login")
 
-
 # Django REST Framework settings with drf-spectacular integration
 
 REST_FRAMEWORK = {
