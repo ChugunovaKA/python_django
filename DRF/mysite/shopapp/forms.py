@@ -10,5 +10,5 @@ class ProductForm(forms.ModelForm):
         fields = "name", "price", "description", "discount", "preview"
 
     images = forms.ImageField(
-        widget=FileInput(attrs={"multiple": True}),
+        widget=FileInput(),  # без multiple=True, чтобы избежать ошибки
     )
