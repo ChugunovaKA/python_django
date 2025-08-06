@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LogoutView
@@ -10,9 +12,15 @@ from django.views.generic import TemplateView, CreateView
 
 from .models import Profile
 
+logger = logging.getLogger(__name__)
+
 
 class AboutMeView(TemplateView):
     template_name = "myauth/about-me.html"
+
+    def get(self, request, *args, **kwargs):
+        logger.info("AboutMeView accessed")
+        return super().get(request, *args, **kwargs)
 
 
 class RegisterView(CreateView):
@@ -25,6 +33,7 @@ class RegisterView(CreateView):
         Profile.objects.create(user=self.object)
         username = form.cleaned_data.get("username")
         password = form.cleaned_data.get("password1")
+        logger.info(f"New user registered: {username}")
         user = authenticate(
             self.request,
             username=username,
@@ -40,6 +49,7 @@ class MyLogoutView(LogoutView):
 
 @user_passes_test(lambda u: u.is_superuser)
 def set_cookie_view(request: HttpRequest) -> HttpResponse:
+    logger.debug("set_cookie_view called")
     response = HttpResponse("Cookie set")
     response.set_cookie("fizz", "buzz", max_age=3600)
     return response
@@ -47,11 +57,13 @@ def set_cookie_view(request: HttpRequest) -> HttpResponse:
 
 def get_cookie_view(request: HttpRequest) -> HttpResponse:
     value = request.COOKIES.get("fizz", "default value")
+    logger.debug(f"get_cookie_view called, fizz={value}")
     return HttpResponse(f"Cookie value: {value!r}")
 
 
 @permission_required("myauth.view_profile", raise_exception=True)
 def set_session_view(request: HttpRequest) -> HttpResponse:
+    logger.debug("set_session_view called")
     request.session["foobar"] = "spameggs"
     return HttpResponse("Session set!")
 
@@ -59,9 +71,11 @@ def set_session_view(request: HttpRequest) -> HttpResponse:
 @login_required
 def get_session_view(request: HttpRequest) -> HttpResponse:
     value = request.session.get("foobar", "default")
+    logger.debug(f"get_session_view called, foobar={value}")
     return HttpResponse(f"Session value: {value!r}")
 
 
 class FooBarView(View):
     def get(self, request: HttpRequest) -> JsonResponse:
+        logger.info("FooBarView GET called")
         return JsonResponse({"foo": "bar", "spam": "eggs"})
