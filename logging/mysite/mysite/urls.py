@@ -20,11 +20,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('shop/', include('shopapp.urls')),
     path('myauth/', include('myauth.urls')),
+
+    # Редирект корня сайта на /shop/ (можно заменить на нужное view)
+    path('', RedirectView.as_view(url='/shop/', permanent=False)),
 ]
 
 if settings.DEBUG:
