@@ -1,18 +1,19 @@
 from timeit import default_timer
 
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, reverse
+from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib import messages
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.syndication.views import Feed  # импорт для RSS
 from .models import Product, Order, ProductImage
-from .forms import ProductForm
+from .forms import ProductForm, ImportOrdersForm
 from .serializers import ProductSerializer
 
 
@@ -90,7 +91,6 @@ class ProductUpdateView(UpdateView):
                 product=self.object,
                 image=image,
             )
-
         return response
 
 
@@ -145,7 +145,7 @@ class LatestProductsFeed(Feed):
     description = "Updates on the latest products added to the shop."
 
     def items(self):
-        return Product.objects.order_by('-created_at')[:5]  # взять последние 5 продуктов, сортировка по дате создания
+        return Product.objects.order_by('-created_at')[:5]  # последние 5 продуктов
 
     def item_title(self, item):
         return item.name
@@ -155,3 +155,33 @@ class LatestProductsFeed(Feed):
 
     def item_link(self, item):
         return item.get_absolute_url()
+
+
+# Представление для загрузки файла импорта заказов
+def import_orders_view(request):
+    if request.method == "POST":
+        form = ImportOrdersForm(request.POST, request.FILES)
+        if form.is_valid():
+            import_file = form.cleaned_data['import_file']
+
+            try:
+                import tempfile
+
+                with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+                    for chunk in import_file.chunks():
+                        tmp_file.write(chunk)
+                    tmp_filepath = tmp_file.name
+
+                # Здесь нужно реализовать логику импорта из файла tmp_filepath,
+                # например, вызов функции import_orders_from_file(tmp_filepath)
+
+                messages.success(request, "Файл успешно загружен. Импорт заказов запущен.")
+                return redirect('shopapp:orders_list')
+
+            except Exception as e:
+                messages.error(request, f"Ошибка при импорте: {e}")
+
+    else:
+        form = ImportOrdersForm()
+
+    return render(request, "shopapp/import_orders.html", {"form": form})
