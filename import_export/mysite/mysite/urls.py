@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
 from shopapp.sitemaps import ShopSitemap
-from shopapp.views import LatestProductsFeed  # добавляем импорт
+from shopapp.views import LatestProductsFeed  # импорт RSS
 
 sitemaps = {
     'shop': ShopSitemap,
@@ -17,14 +17,12 @@ urlpatterns = [
 
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
 
-    path('products/latest/feed/', LatestProductsFeed(), name='latest_products_feed'),  # путь для RSS
+    path('products/latest/feed/', LatestProductsFeed(), name='latest_products_feed'),
 ]
 
 if settings.DEBUG:
     urlpatterns.extend(
         static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     )
-
     urlpatterns.extend(
         static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    )

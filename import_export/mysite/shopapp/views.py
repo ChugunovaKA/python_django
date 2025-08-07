@@ -1,5 +1,4 @@
 from timeit import default_timer
-
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
@@ -11,7 +10,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
-from django.contrib.syndication.views import Feed  # импорт для RSS
+from django.contrib.syndication.views import Feed
 from django.contrib.auth.models import User
 import csv
 import tempfile
@@ -78,7 +77,6 @@ class ProductCreateView(CreateView):
 
 class ProductUpdateView(UpdateView):
     model = Product
-    # fields = "name", "price", "description", "discount", "preview"
     template_name_suffix = "_update_form"
     form_class = ProductForm
 
@@ -142,14 +140,14 @@ class ProductsDataExportView(View):
         return JsonResponse({"products": products_data})
 
 
-# Новый класс для RSS-ленты новейших товаров
+# RSS-лента последних товаров
 class LatestProductsFeed(Feed):
     title = "Latest Products"
     link = "/products/latest/feed/"
     description = "Updates on the latest products added to the shop."
 
     def items(self):
-        return Product.objects.order_by('-created_at')[:5]  # последние 5 продуктов
+        return Product.objects.order_by('-created_at')[:5]
 
     def item_title(self, item):
         return item.name
@@ -161,16 +159,15 @@ class LatestProductsFeed(Feed):
         return item.get_absolute_url()
 
 
-# Функция для импорта заказов из CSV-файла
+# Функция импорта заказов из CSV
 def import_orders_from_file(filepath):
     with open(filepath, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            # Ожидаемые поля CSV: user_id, delivery_address, product_ids, promocode
             try:
                 user = User.objects.get(pk=int(row['user_id']))
             except User.DoesNotExist:
-                continue  # если пользователь не найден, пропускаем эту строку
+                continue
 
             order = Order.objects.create(
                 user=user,
@@ -187,7 +184,7 @@ def import_orders_from_file(filepath):
             order.save()
 
 
-# Представление для загрузки файла импорта заказов
+# Представление загрузки файла с импортом заказов
 def import_orders_view(request):
     if request.method == "POST":
         form = ImportOrdersForm(request.POST, request.FILES)
@@ -200,8 +197,7 @@ def import_orders_view(request):
                         tmp_file.write(chunk)
                     tmp_filepath = tmp_file.name
 
-                # Вызываем функцию импорта из файла CSV
-                import_orders_from_file(tmp_filepath)
+                import_orders_from_file(tmp_filepath)  # вызов импорта
 
                 messages.success(request, "Файл успешно загружен. Импорт заказов завершён.")
                 return redirect('shopapp:orders_list')
