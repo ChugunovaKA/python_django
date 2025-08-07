@@ -7,7 +7,7 @@ class ProductForm(forms.ModelForm):
         fields = "name", "price", "description", "discount", "preview"
 
     images = forms.ImageField(
-        widget=forms.ClearableFileInput(attrs={"multiple": True}),
+        widget=forms.ClearableFileInput(),  # убран attrs={"multiple": True}
     )
 
 
