@@ -12,7 +12,8 @@ from .views import (
     ProductDeleteView,
     ProductsDataExportView,
     ProductViewSet,
-    LatestProductsFeed,  # добавлен импорт класса RSS-ленты
+    LatestProductsFeed,    # импорт RSS-ленты
+    import_orders_view,    # импорт view импорта заказов
 )
 
 app_name = "shopapp"
@@ -32,5 +33,6 @@ urlpatterns = [
     path("orders/", OrdersListView.as_view(), name="orders_list"),
     path("orders/<int:pk>/", OrderDetailView.as_view(), name="order_details"),
 
-    path("products/latest/feed/", LatestProductsFeed(), name="latest_products_feed"),  # путь к RSS-ленте
+    path("products/latest/feed/", LatestProductsFeed(), name="latest_products_feed"),  # RSS-лента
+    path("orders/import/", import_orders_view, name="orders_import"),                 # импорт заказов
 ]
