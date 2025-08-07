@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
 from shopapp.sitemaps import ShopSitemap
+from shopapp.views import LatestProductsFeed  # добавляем импорт
 
 sitemaps = {
     'shop': ShopSitemap,
@@ -15,6 +16,8 @@ urlpatterns = [
     path('myauth/', include('myauth.urls')),
 
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+
+    path('products/latest/feed/', LatestProductsFeed(), name='latest_products_feed'),  # путь для RSS
 ]
 
 if settings.DEBUG:
