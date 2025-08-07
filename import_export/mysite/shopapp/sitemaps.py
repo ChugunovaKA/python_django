@@ -9,8 +9,9 @@ class ShopSitemap(Sitemap):
         return Product.objects.all()
 
     def lastmod(self, obj):
-        return obj.updated_at  # если у модели Product есть поле updated_at
-        # иначе можно вернуть None или другое поле с датой изменения
+        # Если в модели Product есть поле с датой обновления, например updated_at,
+        # замените на ваше имя поля.
+        return getattr(obj, 'updated_at', None)
 
     def location(self, obj):
         return obj.get_absolute_url()
