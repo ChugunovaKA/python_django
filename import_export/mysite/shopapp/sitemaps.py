@@ -13,5 +13,5 @@ class ShopSitemap(Sitemap):
         # Используем 'created_at', так как 'updated_at' отсутствует
         return obj.created_at
 
-     def location(self, obj):
+    def location(self, obj):
         return obj.get_absolute_url()
