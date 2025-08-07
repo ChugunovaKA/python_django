@@ -12,6 +12,10 @@ from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.syndication.views import Feed  # импорт для RSS
+from django.contrib.auth.models import User
+import csv
+import tempfile
+
 from .models import Product, Order, ProductImage
 from .forms import ProductForm, ImportOrdersForm
 from .serializers import ProductSerializer
@@ -157,6 +161,32 @@ class LatestProductsFeed(Feed):
         return item.get_absolute_url()
 
 
+# Функция для импорта заказов из CSV-файла
+def import_orders_from_file(filepath):
+    with open(filepath, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # Ожидаемые поля CSV: user_id, delivery_address, product_ids, promocode
+            try:
+                user = User.objects.get(pk=int(row['user_id']))
+            except User.DoesNotExist:
+                continue  # если пользователь не найден, пропускаем эту строку
+
+            order = Order.objects.create(
+                user=user,
+                delivery_address=row.get('delivery_address', ''),
+                promocode=row.get('promocode', ''),
+            )
+
+            product_ids = row.get('product_ids', '')
+            if product_ids:
+                product_ids_list = [pid.strip() for pid in product_ids.split(',') if pid.strip().isdigit()]
+                products = Product.objects.filter(pk__in=product_ids_list)
+                order.products.set(products)
+
+            order.save()
+
+
 # Представление для загрузки файла импорта заказов
 def import_orders_view(request):
     if request.method == "POST":
@@ -165,17 +195,15 @@ def import_orders_view(request):
             import_file = form.cleaned_data['import_file']
 
             try:
-                import tempfile
-
                 with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
                     for chunk in import_file.chunks():
                         tmp_file.write(chunk)
                     tmp_filepath = tmp_file.name
 
-                # Здесь нужно реализовать логику импорта из файла tmp_filepath,
-                # например, вызов функции import_orders_from_file(tmp_filepath)
+                # Вызываем функцию импорта из файла CSV
+                import_orders_from_file(tmp_filepath)
 
-                messages.success(request, "Файл успешно загружен. Импорт заказов запущен.")
+                messages.success(request, "Файл успешно загружен. Импорт заказов завершён.")
                 return redirect('shopapp:orders_list')
 
             except Exception as e:
