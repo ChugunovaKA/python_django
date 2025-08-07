@@ -10,8 +10,9 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .forms import ProductForm
+from django.contrib.syndication.views import Feed  # импорт для RSS
 from .models import Product, Order, ProductImage
+from .forms import ProductForm
 from .serializers import ProductSerializer
 
 
@@ -135,3 +136,22 @@ class ProductsDataExportView(View):
             for product in products
         ]
         return JsonResponse({"products": products_data})
+
+
+# Новый класс для RSS-ленты новейших товаров
+class LatestProductsFeed(Feed):
+    title = "Latest Products"
+    link = "/products/latest/feed/"
+    description = "Updates on the latest products added to the shop."
+
+    def items(self):
+        return Product.objects.order_by('-created_at')[:5]  # взять последние 5 продуктов, сортировка по дате создания
+
+    def item_title(self, item):
+        return item.name
+
+    def item_description(self, item):
+        return item.description
+
+    def item_link(self, item):
+        return item.get_absolute_url()
