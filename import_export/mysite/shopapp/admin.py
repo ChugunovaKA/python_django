@@ -6,20 +6,83 @@ from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import path
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
 
-from .models import Order, Product
+from .models import Product, Order, ProductImage
+
+User = get_user_model()
 
 
 class ImportOrdersForm(forms.Form):
     csv_file = forms.FileField(label="Выберите CSV файл для импорта заказов")
 
 
+class OrderInline(admin.TabularInline):
+    model = Product.orders.through
+
+
+class ProductInline(admin.StackedInline):
+    model = ProductImage
+
+
+@admin.action(description="Archive products")
+def mark_archived(modeladmin: admin.ModelAdmin, request, queryset):
+    queryset.update(archived=True)
+
+
+@admin.action(description="Unarchive products")
+def mark_unarchived(modeladmin: admin.ModelAdmin, request, queryset):
+    queryset.update(archived=False)
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    actions = [
+        mark_archived,
+        mark_unarchived,
+    ]
+    inlines = [
+        OrderInline,
+        ProductInline,
+    ]
+    list_display = ("pk", "name", "description_short", "price", "discount", "archived")
+    list_display_links = ("pk", "name")
+    ordering = ("-name", "pk")
+    search_fields = ("name", "description")
+    fieldsets = [
+        (None, {
+            "fields": ("name", "description"),
+        }),
+        ("Price options", {
+            "fields": ("price", "discount"),
+            "classes": ("wide", "collapse"),
+        }),
+        ("Images", {
+            "fields": ("preview",),
+        }),
+        ("Extra options", {
+            "fields": ("archived",),
+            "classes": ("collapse",),
+            "description": "Extra options. Field 'archived' is for soft delete",
+        })
+    ]
+
+    def description_short(self, obj: Product) -> str:
+        if len(obj.description) < 48:
+            return obj.description
+        return obj.description[:48] + "..."
+
+
+class ProductInlineForOrder(admin.StackedInline):
+    model = Order.products.through
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     inlines = [
-        ProductInline,
+        ProductInlineForOrder,
     ]
-    list_display = "delivery_address", "promocode", "created_at", "user_verbose"
+    list_display = ("delivery_address", "promocode", "created_at", "user_verbose")
 
     def get_queryset(self, request):
         return Order.objects.select_related("user").prefetch_related("products")
@@ -27,7 +90,7 @@ class OrderAdmin(admin.ModelAdmin):
     def user_verbose(self, obj: Order) -> str:
         return obj.user.first_name or obj.user.username
 
-    # --- Новый код для импорта ---
+    # --- Добавляем кастомные URL для импорта ---
 
     def get_urls(self):
         urls = super().get_urls()
@@ -44,21 +107,16 @@ class OrderAdmin(admin.ModelAdmin):
                 reader = csv.DictReader(csv_file)
                 created_count = 0
                 errors = []
+
                 for row_number, row in enumerate(reader, start=2):
-                    # Пример: ожидаем в CSV поля user_id, delivery_address, promocode, product_ids (через запятую)
                     user_id = row.get('user_id')
                     if not user_id:
                         errors.append(f"Строка {row_number}: отсутствует user_id")
                         continue
 
                     try:
-                        user = self.model._meta.app_label == 'auth' and self.model._meta.model_name == 'user' and None or None
-                        # Лучше импортировать User в начало файла и использовать:
-                        # from django.contrib.auth.models import User
-                        from django.contrib.auth import get_user_model
-                        User = get_user_model()
                         user = User.objects.get(pk=int(user_id))
-                    except Exception:
+                    except User.DoesNotExist:
                         errors.append(f"Строка {row_number}: пользователь с id={user_id} не найден")
                         continue
 
