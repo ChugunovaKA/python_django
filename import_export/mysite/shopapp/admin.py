@@ -120,8 +120,8 @@ class OrderAdmin(admin.ModelAdmin):
 
                     try:
                         user = User.objects.get(pk=int(user_id))
-                    except User.DoesNotExist:
-                        errors.append(f"Строка {row_number}: пользователь с id={user_id} не найден")
+                    except (User.DoesNotExist, ValueError):
+                        errors.append(f"Строка {row_number}: пользователь с id={user_id} не найден или id некорректен")
                         continue
 
                     order = Order.objects.create(
@@ -129,10 +129,28 @@ class OrderAdmin(admin.ModelAdmin):
                         delivery_address=row.get('delivery_address', ''),
                         promocode=row.get('promocode', ''),
                     )
+
                     product_ids = row.get('product_ids', '')
                     if product_ids:
-                        ids_list = [int(pid.strip()) for pid in product_ids.split(',') if pid.strip().isdigit()]
-                        products = Product.objects.filter(pk__in=ids_list)
+                        product_id_strs = [pid.strip() for pid in product_ids.split(',')]
+                        valid_ids = []
+                        invalid_ids = []
+
+                        for pid_str in product_id_strs:
+                            if pid_str.isdigit():
+                                valid_ids.append(int(pid_str))
+                            else:
+                                invalid_ids.append(pid_str)
+
+                        if invalid_ids:
+                            errors.append(f"Строка {row_number}: некорректные ID товаров: {', '.join(invalid_ids)}")
+
+                        products = Product.objects.filter(pk__in=valid_ids)
+                        found_ids = set(p.pk for p in products)
+                        missing_ids = set(valid_ids) - found_ids
+                        if missing_ids:
+                            errors.append(f"Строка {row_number}: товары с id {', '.join(map(str, missing_ids))} не найдены")
+
                         order.products.set(products)
 
                     created_count += 1
