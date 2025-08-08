@@ -4,7 +4,7 @@ from io import TextIOWrapper
 from django import forms
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
-from django.urls import path
+from django.urls import path, reverse
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 
@@ -151,3 +151,10 @@ class OrderAdmin(admin.ModelAdmin):
             form=form,
         )
         return render(request, "admin/csv_form.html", context)
+
+    # Добавляем в контекст changelist URL на импорт
+    def changelist_view(self, request, extra_context=None):
+        if extra_context is None:
+            extra_context = {}
+        extra_context['import_url'] = reverse('admin:shopapp_order_import_csv')
+        return super().changelist_view(request, extra_context=extra_context)
