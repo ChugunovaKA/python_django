@@ -1,15 +1,13 @@
 {% extends "admin/base_site.html" %}
-{% load static %}
+{% load i18n %}
 
 {% block content %}
-  <h1>Импорт заказов из CSV</h1>
+  <h1>{% trans "Импорт заказов из CSV" %}</h1>
 
   <form method="post" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {{ form.as_p }}
-
-    <input type="submit" value="Загрузить">
+    <button type="submit" class="default">{% trans "Загрузить" %}</button>
+    <a href="{% url 'admin:shopapp_order_changelist' %}" class="button cancel-link">{% trans "Отмена" %}</a>
   </form>
-
-  <p><a href="{% url 'admin:shopapp_order_changelist' %}">Вернуться к списку заказов</a></p>
 {% endblock %}
