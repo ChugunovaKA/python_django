@@ -90,15 +90,19 @@ class OrderAdmin(admin.ModelAdmin):
     def user_verbose(self, obj: Order) -> str:
         return obj.user.first_name or obj.user.username
 
-    # --- Добавляем кастомные URL для импорта ---
-
+    # Добавляем кастомный URL для импорта
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('import-csv/', self.admin_site.admin_view(self.import_csv), name='shopapp_order_import_csv'),
+            path(
+                'import-csv/',
+                self.admin_site.admin_view(self.import_csv),
+                name='shopapp_order_import_csv'
+            ),
         ]
         return custom_urls + urls
 
+    # Обработчик страницы импорта CSV
     def import_csv(self, request):
         if request.method == "POST":
             form = ImportOrdersForm(request.POST, request.FILES)
