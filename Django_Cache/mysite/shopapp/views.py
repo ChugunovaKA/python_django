@@ -2,11 +2,14 @@ from csv import DictWriter
 from timeit import default_timer
 
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, reverse
+from django.shortcuts import render, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.cache import cache
+from django.core.serializers import serialize
+
 from rest_framework.parsers import MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -19,6 +22,9 @@ from .common import save_csv_products
 from .forms import ProductForm
 from .models import Product, Order, ProductImage
 from .serializers import ProductSerializer
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class ProductViewSet(ModelViewSet):
@@ -115,7 +121,6 @@ class ProductCreateView(CreateView):
 
 class ProductUpdateView(UpdateView):
     model = Product
-    # fields = "name", "price", "description", "discount", "preview"
     template_name_suffix = "_update_form"
     form_class = ProductForm
 
@@ -132,7 +137,6 @@ class ProductUpdateView(UpdateView):
                 product=self.object,
                 image=image,
             )
-
         return response
 
 
@@ -178,3 +182,33 @@ class ProductsDataExportView(View):
             for product in products
         ]
         return JsonResponse({"products": products_data})
+
+
+# === Добавленные представления для практической работы с кешем ===
+
+class UserOrdersListView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = 'shopapp/user_orders_list.html'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        self.owner = get_object_or_404(User, id=user_id)
+        return Order.objects.filter(user=self.owner).order_by('pk')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['owner'] = self.owner
+        return context
+
+
+class UserOrdersExportView(View):
+    def get(self, request: HttpRequest, user_id: int) -> JsonResponse:
+        cache_key = f'user_orders_export_{user_id}'
+        data = cache.get(cache_key)
+        if not data:
+            user = get_object_or_404(User, pk=user_id)
+            orders = Order.objects.filter(user=user).order_by('pk')
+            data = serialize('json', orders)
+            cache.set(cache_key, data, 300)  # кеш на 5 минут
+        return JsonResponse(data, safe=False)
