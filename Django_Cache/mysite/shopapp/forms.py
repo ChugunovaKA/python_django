@@ -1,7 +1,10 @@
 from django import forms
+from shopapp.models import Product  # Импорт модели Product из shopapp.models
+
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
+
 
 class MultipleFileField(forms.FileField):
     widget = MultipleFileInput
@@ -9,39 +12,13 @@ class MultipleFileField(forms.FileField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def to_python(self, data):
-        # Ожидаем, что data — это список файлов
-        if not data:
-            return None
-        elif isinstance(data, list):
-            return data
-        else:
-            return [data]
-
-    def validate(self, data):
-        # Если список файлов с несколькими элементами
-        if isinstance(data, list):
-            for file in data:
-                super().validate(file)
-        else:
-            super().validate(data)
-
     def clean(self, data, initial=None):
-        if not data:
-            return None
-        if not isinstance(data, list):
-            data = [data]
-        cleaned_data = []
-        errors = []
-        for file in data:
-            try:
-                cleaned_file = super().clean(file, initial)
-                cleaned_data.append(cleaned_file)
-            except forms.ValidationError as e:
-                errors.append(e)
-        if errors:
-            raise forms.ValidationError(errors)
-        return cleaned_data
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = [single_file_clean(data, initial)]
+        return result
 
 
 class ProductForm(forms.ModelForm):
@@ -53,3 +30,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ("name", "price", "description", "discount", "preview",)
+
+
+class CSVImportForm(forms.Form):
+    csv_file = forms.FileField()
