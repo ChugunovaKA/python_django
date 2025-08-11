@@ -164,3 +164,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = reverse_lazy("myauth:about-me")
 LOGIN_URL = reverse_lazy("myauth:login")
+
+
+# Cache settings
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 300,  # Кеш хранится 300 секунд (5 минут)
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,  # Максимальное количество элементов в кеше
+        }
+    }
+}
