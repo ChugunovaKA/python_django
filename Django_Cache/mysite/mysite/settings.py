@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-DEBUG = True
 
 from pathlib import Path
 from django.urls import reverse_lazy
@@ -19,12 +18,19 @@ import socket
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Use environment variable DJANGO_DEBUG for debug mode, or default True
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "your-default-secret-key-please-change-it"
+)
+
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', '1') == '1'
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "0.0.0.0",
+    "localhost",  # добавлено для решения DisallowedHost
 ]
 
 INTERNAL_IPS = [
@@ -68,7 +74,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Подключаем debug_toolbar только если DEBUG == True
+# Подключаем debug_toolbar только если DEBUG=True
 if DEBUG:
     INSTALLED_APPS += ['debug_toolbar']
     MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
@@ -93,7 +99,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-# Database - SQLite, по умолчанию
+# Database configuration — по умолчанию sqlite3
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -117,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# REST Framework settings
+# REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
@@ -150,9 +156,24 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake',
-        'TIMEOUT': 300,  # Cache for 300 seconds (5 min)
+        'TIMEOUT': 300,  # Cache duration in seconds
         'OPTIONS': {
             'MAX_ENTRIES': 1000,
         }
     }
+}
+
+# Optional: Simple console logging config to see errors in logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'ERROR',
+    },
 }
