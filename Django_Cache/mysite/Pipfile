@@ -2,3 +2,5 @@
 django = "*"
 gunicorn = "*"
 django-debug-toolbar = "*"
+djangorestframework = "*"
+django-filter = "*"
